@@ -47,13 +47,15 @@ def handle_message(event):
     user_text = event.message.text
     source_lang = detect_language(user_text)
 
-    # 只處理中文與泰文的互譯
+    # 根據來源語言決定翻譯目標語言
     if source_lang.startswith("zh"):
-        target_langs = ['th']
+        target_langs = ['th', 'en']         # 中文 → 泰文 + 英文
     elif source_lang == 'th':
-        target_langs = ['zh-TW']
+        target_langs = ['zh-TW', 'en']      # 泰文 → 中文 + 英文
+    elif source_lang == 'en':
+        target_langs = ['zh-TW', 'th']      # 英文 → 中文 + 泰文
     else:
-        return  # 其他語言不回應
+        return  # 其他語言不處理
 
     # 執行翻譯並準備回覆訊息
     reply_lines = []
@@ -62,7 +64,8 @@ def handle_message(event):
         flag = {
             'zh-TW': "🇹🇼",
             'zh-CN': "🇹🇼",
-            'th': "🇹🇭"
+            'th': "🇹🇭",
+            'en': "🇺🇸"
         }.get(tgt, "")
         reply_lines.append(f"{flag} : {translated}")
     reply = "\n".join(reply_lines)
@@ -81,6 +84,7 @@ def handle_message(event):
                 ]
             )
         )
+
 
 # LINE webhook 路由
 @app.route("/callback", methods=['POST'])
